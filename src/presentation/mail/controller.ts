@@ -17,10 +17,7 @@ export class MailController {
 
     sendMail = async (req: Request, res: Response) => {
         try {
-            const [error, registerUserDto] = await SendMailDto.sendMail(req.body);
-
-            if (error.length > 0) return res.status(412).send({ error });
-            const result = await this._mailService.sendMail(registerUserDto!);
+            const result = await this._mailService.sendMail(req.body);
 
             res.json({ accepted: result.accepted, rejected: result.rejected })
         } catch (error) {

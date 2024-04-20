@@ -2,6 +2,7 @@ import { SentMessageInfo } from "nodemailer";
 import { IMailService } from "../interface/IMailService";
 import { SendMailDto } from "../../../domain/dtos/sendMail.dto";
 import { MailConfigService } from "../../../config/mail";
+import { CustomError } from "../../../config/errors";
 
 
 export class MailService implements IMailService {
@@ -9,13 +10,18 @@ export class MailService implements IMailService {
     constructor(
     ) { }
 
-    async sendMail(sendMailDto: SendMailDto): Promise<SentMessageInfo> {
+    async sendMail(sendMailDto: any): Promise<SentMessageInfo> {
         try {
-            // Here we will implement the logic to send the mail
+
+            const [error, registerUserDto] = SendMailDto.sendMail(sendMailDto);
+
+            if (error.length > 0) throw CustomError.prevalidation(error[0]);
+            
             const mailConfig = new MailConfigService()
-            return await mailConfig.sendEmail(sendMailDto);
+            return await mailConfig.sendEmail(registerUserDto!);
 
         } catch (error) {
+            if (error instanceof CustomError) throw error;
             throw new Error('Error sending mail')
         }
     }
