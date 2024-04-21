@@ -1,6 +1,5 @@
 import { Request, Response } from "express"
 import { IMailService } from "../../infrastructure/services"
-import { SendMailDto } from "../../domain/dtos/sendMail.dto";
 import { CustomError } from "../../config/errors";
 
 export class MailController {
