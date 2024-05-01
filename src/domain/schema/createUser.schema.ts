@@ -2,9 +2,10 @@ import { z } from 'zod';
 
 // Definir el esquema
 export const createUserSchema = z.object({
-    name: z.string().min(1, { message: 'El nombre es requerido' }),
-    firsName: z.string().min(1, { message: 'El apellido es requerido' }),
-    email: z.string().email({ message: 'El correo electrónico no es válido' }),
-    password: z.string().min(5, { message: 'La constraseña debe tenner minimo 5 caracteres' }),
-    phone: z.string().min(8, { message: 'El telefono debe tener al menos 8' }).optional(),
+    name: z.string({required_error: 'El nombre es requerido',}).min(1, { message: 'El nombre es requerido' }),
+    firstName: z.string({required_error: 'El Apellido es requerido',}).min(1).refine(value => value.trim() !== '', { message: 'El apellido es requerido' }),
+    email: z.string({required_error: 'El email es requerido',}).email({ message: 'El email no es valido' }),
+    password: z.string({required_error: 'La contraseña es requerida',}).min(6, { message: 'La contraseña debe tener al menos 6 caracteres' }),
+    phone: z.string().optional(),
+    img: z.string().optional(),
 });

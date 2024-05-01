@@ -17,7 +17,6 @@ export class CreateUserDto {
     static RegisterUser(object: { [key: string]: any }): [string[], CreateUserDto?] {
         const { name, firstName, email, password, img, phone } = object
         try {
-
             createUserSchema.parse({ name, firstName, email, password, phone });
             return [
                 [],
