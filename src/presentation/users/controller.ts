@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { IUserService } from '../../infrastructure/services';
 import { CustomError } from '../../config/errors';
 import { PreconditionValidation } from '../../config/PreconditionValidation';
+import { jwtAdapter } from '../../config/jwt';
 
 export class UsersController {
 
@@ -14,7 +15,7 @@ export class UsersController {
 
         try {
             const result = await this._userService.createUser(req.body);
-            res.json({ data: result });
+            res.json({ message: 'Usuario registrado correctamente', token: await jwtAdapter.generateToken({ data: result }) });
         } catch (error) {
             if (error instanceof PreconditionValidation) {
                 PreconditionValidation.handleErrors(error, res);
@@ -22,5 +23,4 @@ export class UsersController {
             CustomError.handleErrors(error, res);
         }
     }
-
 }

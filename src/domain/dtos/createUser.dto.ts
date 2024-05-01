@@ -9,15 +9,15 @@ export class CreateUserDto {
         public firstName: string,
         public email: string,
         public password: string,
-        public status: boolean,
+        public active: boolean,
         public phone?: string,
         public img?: string
     ) { }
 
     static RegisterUser(object: { [key: string]: any }): [string[], CreateUserDto?] {
-        const { name, firstName, email, password, img, phone } = object
+        const { name, firstName, email, password, img, phone, confirmPassword } = object
         try {
-            createUserSchema.parse({ name, firstName, email, password, phone });
+            createUserSchema.parse({ name, firstName, email, password, phone, confirmPassword });
             return [
                 [],
                 new CreateUserDto(name, firstName, email, password, img, phone)

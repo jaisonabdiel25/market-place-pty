@@ -5,6 +5,7 @@ import { IUserRepository } from "../../repositories";
 import { PreconditionValidation } from "../../../config/PreconditionValidation";
 import { UserEntity } from "../../../domain/entity/UserEntity";
 import { UserMapperResponse } from "../../../domain/mappers/UserMapperResponse";
+import { BcryptAdapter } from "../../../config/bcrypt";
 
 
 
@@ -22,7 +23,11 @@ export class UserService implements IUserService {
 
             const userByEmail = await this._userRepository.findUserByEmail(createUserDto!.email);
 
-            if (userByEmail) throw CustomError.prevalidation('Email already exists');
+            if (userByEmail) throw CustomError.prevalidation('Ya existe un usuario con este email');
+
+            const passwordhash = BcryptAdapter.hash(createUserDto!.password);
+
+            createUserDto!.password = passwordhash;
 
             const newUser = await this._userRepository.createUser(createUserDto!);
 
