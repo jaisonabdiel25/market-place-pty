@@ -6,8 +6,7 @@ import { PreconditionValidation } from "../../../config/PreconditionValidation";
 import { UserEntity } from "../../../domain/entity/UserEntity";
 import { UserMapperResponse } from "../../../domain/mappers/UserMapperResponse";
 import { BcryptAdapter } from "../../../config/bcrypt";
-
-
+import { LoginUserDto } from "../../../domain/dtos/loginUser.dto";
 
 export class UserService implements IUserService {
     constructor(
@@ -38,6 +37,35 @@ export class UserService implements IUserService {
             if (error instanceof CustomError) throw error;
             if (error instanceof PreconditionValidation) throw error;
             throw CustomError.internal();
+        }
+
+    }
+
+    async loginUser(user: CreateUserDto): Promise<UserEntity> {
+
+        try {
+
+            const { password } = user;
+            const [error, loginUserDto] = LoginUserDto.LoginUser(user);
+
+            if (error.length > 0) throw PreconditionValidation.PreconditionsFailed(error);
+
+            const userByEmail = await this._userRepository.findUserByEmail(loginUserDto!.email);
+
+            if (!userByEmail) throw CustomError.prevalidation('email or password incorrect');
+
+            console.log(userByEmail)
+
+            if (!BcryptAdapter.compare(password, userByEmail.password)) throw CustomError.prevalidation('email or password incorrect 2');
+
+            return UserMapperResponse.userMapperResponse(userByEmail);
+
+        } catch (error) {
+
+            if (error instanceof CustomError) throw error;
+            if (error instanceof PreconditionValidation) throw error;
+            throw CustomError.internal();
+
         }
 
     }

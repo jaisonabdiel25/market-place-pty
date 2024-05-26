@@ -16,6 +16,7 @@ export class UserRoutes {
 
         // definir las rutas
         router.post('/', controller.createUser);
+        router.post('/login', controller.loginUser);
 
         return router;
     }
