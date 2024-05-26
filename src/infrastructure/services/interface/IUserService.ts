@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { CreateUserDto } from "../../../domain/dtos/createUser.dto";
 import { UserEntity } from "../../../domain/entity/UserEntity";
 import { LoginUserDto } from "../../../domain/dtos/loginUser.dto";
