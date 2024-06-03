@@ -47,7 +47,7 @@ model Product {
   name        String
   description String
   price       Float
-  img         String
+  img         String?
   createAt    DateTime @default(now())
   updateAt    DateTime @updatedAt
   active      Boolean  @default(true)

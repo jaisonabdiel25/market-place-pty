@@ -9,3 +9,6 @@ Pasos para siempre iniciar un proyecto de node con typescript
 "build": "rimraf ./dist && tsc",
 "start": "npm run build && node dist/index.js"
 ``
+
+ejmplo para crear migración luego de editar el modelo de prisma
+``npx prisma migrate dev --name nombre_de_tu_migracion``

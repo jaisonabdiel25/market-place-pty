@@ -13,6 +13,7 @@ export class ProductController {
     createProduct = async (req: Request, res: Response) => {
 
         try {
+            await this._productService.createProduct(req.body);
             res.status(201).json({ message: 'Product created' })
         } catch (error) {
             if (error instanceof PreconditionValidation) {
