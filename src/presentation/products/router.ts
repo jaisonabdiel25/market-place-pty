@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ProductController } from './controller';
 import { ProductService } from '../../infrastructure/services/implementation/ProductService';
 import { ProductRepository } from '../../infrastructure/repositories';
+import { TokenMiddelware } from '../../domain/middelwares/tokenMiddelwares';
 
 export class ProductRoutes {
 
@@ -15,7 +16,7 @@ export class ProductRoutes {
 
         // definir las rutas
         router.get('/', controller.getProducts);
-        router.post('/', controller.createProduct);
+        router.post('/', TokenMiddelware.verifyToken, controller.createProduct);
 
         return router;
     }
