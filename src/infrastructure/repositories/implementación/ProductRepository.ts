@@ -3,6 +3,9 @@ import { prisma } from "../../../client";
 import { CustomError } from "../../../config/errors";
 import { CreateProductDto } from "../../../domain/dtos/createProduct.dto";
 import { IProductRepository } from "../interface/IProductRepository"
+import { jwtAdapter } from "../../../config/jwt";
+import { IncomingHttpHeaders } from 'http';
+import { GlobalData, TokenDecoded } from "../../../domain/models/global";
 
 
 export class ProductRepository implements IProductRepository {
@@ -17,9 +20,13 @@ export class ProductRepository implements IProductRepository {
         }
     }
 
-    async createProduct(product: CreateProductDto): Promise<Product> {
+    async createProduct(product: CreateProductDto, headers:IncomingHttpHeaders): Promise<Product> {
         try {
-            return await prisma.product.create({ data: { ...product, createById: '137fc694-9d1c-419a-952a-88a8aee68dd4' } })
+            const decodedToken = await jwtAdapter.decodeToken<GlobalData<TokenDecoded>>(headers);
+
+            console.log('decodedToken', decodedToken)
+
+            return await prisma.product.create({ data: { ...product, createById: decodedToken!.data.id } });
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
