@@ -1,9 +1,10 @@
 import { ZodError } from "zod";
 import { CustomError } from "../../config/errors";
 import { CreateProducts } from "../models/products";
-import { createProductSchema } from "../schema/product.schema";
+import { updateProductSchema } from "../schema/product.schema";
 
-export class CreateProductDto {
+
+export class UpdateProductDto {
     private constructor(
         public name: string,
         public description: string,
@@ -11,13 +12,13 @@ export class CreateProductDto {
         public img?: string
     ) { }
 
-    static CreateProduct(object: CreateProducts): [string[], CreateProductDto?] {
+    static UpdateProduct(object: CreateProducts): [string[], UpdateProductDto?] {
         const { name, description, price, img } = object
         try {
-            createProductSchema.parse({ name, description, price, img });
+            updateProductSchema.parse({ name, description, price, img });
             return [
                 [],
-                new CreateProductDto(name, description, price, img)
+                new UpdateProductDto(name, description, price, img)
             ];
         } catch (error) {
             if (error instanceof ZodError) {

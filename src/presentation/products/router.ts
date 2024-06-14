@@ -17,6 +17,7 @@ export class ProductRoutes {
         // definir las rutas
         router.get('/', controller.getProducts);
         router.post('/', TokenMiddelware.verifyToken, controller.createProduct);
+        router.patch('/:id', TokenMiddelware.verifyToken, controller.updateProduct);
 
         return router;
     }
