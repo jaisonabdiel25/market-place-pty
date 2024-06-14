@@ -6,6 +6,7 @@ import { CreateProducts } from "../../../domain/models/products";
 import { IProductRepository } from "../../repositories";
 import { IProductService } from "../interface/IProductService";
 import { IncomingHttpHeaders } from 'http';
+import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
 
 export class ProductService implements IProductService {
 
@@ -39,5 +40,23 @@ export class ProductService implements IProductService {
                 if (error instanceof PreconditionValidation) throw error;
                 throw CustomError.internal();
             }
+    }
+
+    async updateProduct(id: string, products: CreateProducts, headers: IncomingHttpHeaders): Promise<void> {
+
+        try {
+            const [error, updateProductsDto] = UpdateProductDto.UpdateProduct(products);
+
+            console.log(updateProductsDto)
+
+            if (error.length > 0) throw PreconditionValidation.PreconditionsFailed(error);
+
+            await this._productRepository.updateProduct(id, updateProductsDto!);
+
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            if (error instanceof PreconditionValidation) throw error;
+            throw CustomError.internal();
+        }
     }
 }

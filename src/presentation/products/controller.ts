@@ -36,4 +36,18 @@ export class ProductController {
             CustomError.handleErrors(error, res);
         }
     }
+
+    updateProduct = async (req: Request, res: Response) => {
+
+        try {
+            await this._productService.updateProduct(req.params.id, req.body, req.headers);
+            res.status(200).json({ message: 'Product updated' });
+
+        } catch (error) {
+            if (error instanceof PreconditionValidation) {
+                PreconditionValidation.handleErrors(error, res);
+            }
+            CustomError.handleErrors(error, res);
+        }
+    }
 }

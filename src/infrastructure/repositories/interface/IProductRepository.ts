@@ -5,4 +5,5 @@ import { IncomingHttpHeaders } from 'http';
 export abstract class IProductRepository {
     abstract getProducts(): Promise<Product[]>;
     abstract createProduct(product: CreateProductDto, headers: IncomingHttpHeaders): Promise<Product>;
+    abstract updateProduct(id: string, product: CreateProductDto): Promise<Product>;
 }

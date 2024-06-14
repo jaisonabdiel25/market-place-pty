@@ -6,6 +6,7 @@ import { IProductRepository } from "../interface/IProductRepository"
 import { jwtAdapter } from "../../../config/jwt";
 import { IncomingHttpHeaders } from 'http';
 import { GlobalData, TokenDecoded } from "../../../domain/models/global";
+import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
 
 
 export class ProductRepository implements IProductRepository {
@@ -32,4 +33,19 @@ export class ProductRepository implements IProductRepository {
             throw CustomError.internal();
         }
     }
+
+    async updateProduct(id: string, product: UpdateProductDto): Promise<Product> {
+        try {
+
+            return await prisma.product.update({
+                where: { id },
+                data: { ...product }
+            });
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            throw CustomError.internal();
+        }
+    }
+
+
 }
