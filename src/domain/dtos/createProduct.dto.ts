@@ -8,16 +8,17 @@ export class CreateProductDto {
         public name: string,
         public description: string,
         public price: number,
+        public categoryId: string,
         public img?: string
     ) { }
 
     static CreateProduct(object: CreateProducts): [string[], CreateProductDto?] {
-        const { name, description, price, img } = object
+        const { name, description, price, categoryId, img } = object
         try {
-            createProductSchema.parse({ name, description, price, img });
+            createProductSchema.parse({ name, description, price, categoryId, img });
             return [
                 [],
-                new CreateProductDto(name, description, price, img)
+                new CreateProductDto(name, description, price, categoryId, img)
             ];
         } catch (error) {
             if (error instanceof ZodError) {

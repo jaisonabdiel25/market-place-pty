@@ -13,8 +13,9 @@ export class ProductController {
     createProduct = async (req: Request, res: Response) => {
 
         try {
-            await this._productService.createProduct(req.body, req.headers);
-            res.status(201).json({ message: 'Product created' })
+            const result = await this._productService.createProduct(req.body, req.headers);
+            console.log(result)
+            res.status(200).json({ message: 'Product created', data: result})
         } catch (error) {
             if (error instanceof PreconditionValidation) {
                 PreconditionValidation.handleErrors(error, res);
@@ -26,8 +27,28 @@ export class ProductController {
     getProducts = async (req: Request, res: Response) => {
 
         try {
-            const products = await this._productService.getProducts();
+            const page = parseInt(req.query.page as string) || 1;
+            const size = parseInt(req.query.size as string) || 10;
+
+            const products = await this._productService.getProducts(page, size);
             res.status(200).json(products);
+
+        } catch (error) {
+            if (error instanceof PreconditionValidation) {
+                PreconditionValidation.handleErrors(error, res);
+            }
+            CustomError.handleErrors(error, res);
+        }
+    }
+
+    getProduct = async (req: Request, res: Response) => {
+
+        try {
+            const id =req.params.id;
+
+            const product = await this._productService.getProduct(id);
+
+            res.status(200).json(product);
 
         } catch (error) {
             if (error instanceof PreconditionValidation) {

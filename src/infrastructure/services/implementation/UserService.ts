@@ -54,8 +54,6 @@ export class UserService implements IUserService {
 
             if (!userByEmail) throw CustomError.prevalidation('email or password incorrect');
 
-            console.log(userByEmail)
-
             if (!BcryptAdapter.compare(password, userByEmail.password)) throw CustomError.prevalidation('email or password incorrect 2');
 
             return UserMapperResponse.userMapperResponse(userByEmail);

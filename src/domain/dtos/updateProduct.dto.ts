@@ -9,16 +9,17 @@ export class UpdateProductDto {
         public name: string,
         public description: string,
         public price: number,
+        public categoryId: string,
         public img?: string
     ) { }
 
     static UpdateProduct(object: CreateProducts): [string[], UpdateProductDto?] {
-        const { name, description, price, img } = object
+        const { name, description, price, categoryId, img } = object
         try {
-            updateProductSchema.parse({ name, description, price, img });
+            updateProductSchema.parse({ name, description, price, categoryId, img });
             return [
                 [],
-                new UpdateProductDto(name, description, price, img)
+                new UpdateProductDto(name, description, price, categoryId, img)
             ];
         } catch (error) {
             if (error instanceof ZodError) {

@@ -12,16 +12,16 @@ import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
 export class ProductRepository implements IProductRepository {
     constructor() { }
 
-    async getProducts(): Promise<Product[]> {
+    async getProducts(skip: number, take: number): Promise<Product[]> {
         try {
-            return await prisma.product.findMany();
+            return await prisma.product.findMany({ skip, take });
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
         }
     }
 
-    async createProduct(product: CreateProductDto, headers:IncomingHttpHeaders): Promise<Product> {
+    async createProduct(product: CreateProductDto, headers: IncomingHttpHeaders): Promise<Product> {
         try {
             const decodedToken = await jwtAdapter.decodeToken<GlobalData<TokenDecoded>>(headers);
 
@@ -41,6 +41,15 @@ export class ProductRepository implements IProductRepository {
                 where: { id },
                 data: { ...product }
             });
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            throw CustomError.internal();
+        }
+    }
+
+    async getProduct(id: string): Promise<Product | null> {
+        try {
+            return await prisma.product.findFirst({ where: { id }, include: { createBy: true, category: true}});
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();

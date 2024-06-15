@@ -1,4 +1,5 @@
 import express, { Router } from 'express';
+import cors from 'cors';
 
 interface Props {
     port: number
@@ -12,6 +13,7 @@ export class Server {
     constructor({ port, router }: Props) {
         this.port = port
         this.router = router
+        this.app.use(cors()); 
     }
 
     public start() {
