@@ -14,7 +14,7 @@ export class ProductRepository implements IProductRepository {
 
     async getProducts(skip: number, take: number): Promise<Product[]> {
         try {
-            return await prisma.product.findMany({ skip, take });
+            return await prisma.product.findMany({ skip, take , include: { images: true}});
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
@@ -49,7 +49,7 @@ export class ProductRepository implements IProductRepository {
 
     async getProduct(id: string): Promise<Product | null> {
         try {
-            return await prisma.product.findFirst({ where: { id }, include: { createBy: true, category: true}});
+            return await prisma.product.findFirst({ where: { id }, include: { createBy: true, category: true, images: true}});
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
