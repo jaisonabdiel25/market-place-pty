@@ -3,32 +3,29 @@ import { giveCurrentDateTime } from "./utils";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { authFirebase } from "./firebase.config";
 import { envs } from './envs';
+import { CustomError } from "./errors";
 
 export class UploadImages {
     constructor() { }
 
     static uploadMultiple = async (files: Express.Multer.File[]) => {
         try {
-            let urls: string[] = [];
             await signInWithEmailAndPassword(authFirebase, envs.FIREBASE_AUTH_USER, envs.FIREBASE_AUTH_PASSWORD)
-            files.map(async (file, index) => {
+            const uploadImages = files.map(async (file, index) => {
                 const dateTime = giveCurrentDateTime();
                 const storage = getStorage();
                 const storageRef = ref(storage, `products/${file.originalname}_${index}_${dateTime}`);
                 const metadata = {
-                    contentType: files[0].mimetype,
+                    contentType: file.mimetype,
                 };
                 const snapshot = await uploadBytesResumable(storageRef, file.buffer, metadata);
-                const url = await getDownloadURL(snapshot.ref);
-                urls.push(url);
+                return await getDownloadURL(snapshot.ref);
             })
 
-            return urls;
+            return await Promise.all(uploadImages);
 
         } catch (error) {
-            throw error;
+            throw CustomError.internal(JSON.stringify(error, null, 2));
         }
     }
-
-
 }

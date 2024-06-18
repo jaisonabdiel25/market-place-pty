@@ -5,3 +5,8 @@ export interface CreateProducts {
     categoryId: string;
     img?: string;
 }
+
+export interface CreateImages {
+    url: string;
+    productId: string;
+}

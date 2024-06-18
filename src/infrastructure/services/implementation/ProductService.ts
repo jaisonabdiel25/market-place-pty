@@ -3,7 +3,7 @@ import { PreconditionValidation } from "../../../config/PreconditionValidation";
 import { CustomError } from "../../../config/errors";
 import { CreateProductDto } from "../../../domain/dtos/createProduct.dto";
 import { CreateProducts } from "../../../domain/models/products";
-import { IProductRepository } from "../../repositories";
+import { IImageRepository, IProductRepository } from "../../repositories";
 import { IProductService } from "../interface/IProductService";
 import { IncomingHttpHeaders } from 'http';
 import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
@@ -15,7 +15,8 @@ import { UploadImages } from "../../../config/uploadImages";
 export class ProductService implements IProductService {
 
     constructor(
-        private readonly _productRepository: IProductRepository
+        private readonly _productRepository: IProductRepository,
+        private readonly _imageRepository: IImageRepository
     ) { }
 
     async createProduct(products: CreateProducts, files: Express.Multer.File[], headers: IncomingHttpHeaders): Promise<Product> {
@@ -28,12 +29,17 @@ export class ProductService implements IProductService {
 
             const urls = await UploadImages.uploadMultiple(files);
 
-            return await this._productRepository.createProduct(productsDto!, headers);
+            const product = await this._productRepository.createProduct(productsDto!, headers);
+
+            const images = urls.map(url => ({ url, productId: product.id }));
+
+            await this._imageRepository.saveImages(images);
+
+            return product;
 
         } catch (error) {
             if (error instanceof CustomError) throw error;
             if (error instanceof PreconditionValidation) throw error;
-            console.log(error)
             throw CustomError.internal();
         }
     }
