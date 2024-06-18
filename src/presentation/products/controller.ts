@@ -13,8 +13,8 @@ export class ProductController {
     createProduct = async (req: Request, res: Response) => {
 
         try {
-            const result = await this._productService.createProduct(req.body, req.headers);
-            console.log(result)
+            const files = req.files as Express.Multer.File[];
+            const result = await this._productService.createProduct(req.body, files, req.headers);
             res.status(200).json({ message: 'Product created', data: result})
         } catch (error) {
             if (error instanceof PreconditionValidation) {

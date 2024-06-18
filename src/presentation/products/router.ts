@@ -3,6 +3,7 @@ import { ProductController } from './controller';
 import { ProductService } from '../../infrastructure/services/implementation/ProductService';
 import { ProductRepository } from '../../infrastructure/repositories';
 import { TokenMiddelware } from '../../domain/middelwares/tokenMiddelwares';
+import { uploadMultiple } from '../../domain/middelwares/multer';
 
 export class ProductRoutes {
 
@@ -17,7 +18,7 @@ export class ProductRoutes {
         // definir las rutas
         router.get('/', controller.getProducts);
         router.get('/:id', controller.getProduct);
-        router.post('/', TokenMiddelware.verifyToken, controller.createProduct);
+        router.post('/', [TokenMiddelware.verifyToken, uploadMultiple], controller.createProduct);
         router.patch('/:id', TokenMiddelware.verifyToken, controller.updateProduct);
 
         return router;

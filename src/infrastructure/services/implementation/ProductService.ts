@@ -8,6 +8,9 @@ import { IProductService } from "../interface/IProductService";
 import { IncomingHttpHeaders } from 'http';
 import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
 import { UserEntity } from "../../../domain/entity/UserEntity";
+import { UploadImages } from "../../../config/uploadImages";
+
+
 
 export class ProductService implements IProductService {
 
@@ -15,18 +18,22 @@ export class ProductService implements IProductService {
         private readonly _productRepository: IProductRepository
     ) { }
 
-    async createProduct(products: CreateProducts, headers: IncomingHttpHeaders): Promise<Product> {
+    async createProduct(products: CreateProducts, files: Express.Multer.File[], headers: IncomingHttpHeaders): Promise<Product> {
 
         try {
+            products.price = parseFloat(products.price as unknown as string);
             const [error, productsDto] = CreateProductDto.CreateProduct(products);
 
             if (error.length > 0) throw PreconditionValidation.PreconditionsFailed(error);
+
+            const urls = await UploadImages.uploadMultiple(files);
 
             return await this._productRepository.createProduct(productsDto!, headers);
 
         } catch (error) {
             if (error instanceof CustomError) throw error;
             if (error instanceof PreconditionValidation) throw error;
+            console.log(error)
             throw CustomError.internal();
         }
     }
