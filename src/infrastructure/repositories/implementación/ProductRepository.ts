@@ -14,7 +14,7 @@ export class ProductRepository implements IProductRepository {
 
     async getProducts(skip: number, take: number): Promise<Product[]> {
         try {
-            return await prisma.product.findMany({ skip, take , include: { images: true}});
+            return await prisma.product.findMany({ skip, take , include: { images: true},  orderBy: { createAt: 'desc'}});
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
@@ -25,9 +25,7 @@ export class ProductRepository implements IProductRepository {
         try {
             const decodedToken = await jwtAdapter.decodeToken<GlobalData<TokenDecoded>>(headers);
 
-            console.log('decodedToken', decodedToken)
-
-            return await prisma.product.create({ data: { ...product, createById: decodedToken!.data.id } });
+            return await prisma.product.create({ data: { ...product, createById: decodedToken!.data.id }, include: {images: true, category: true, createBy: true} });
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
