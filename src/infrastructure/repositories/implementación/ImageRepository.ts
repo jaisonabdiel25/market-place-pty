@@ -1,4 +1,3 @@
-import { Image } from "@prisma/client";
 import { CreateImages } from "../../../domain/models/products";
 import { IImageRepository } from "../interface/IImageRepository";
 import { prisma } from "../../../client";
