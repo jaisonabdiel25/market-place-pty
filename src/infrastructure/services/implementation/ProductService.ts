@@ -9,6 +9,7 @@ import { IncomingHttpHeaders } from 'http';
 import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
 import { UserEntity } from "../../../domain/entity/UserEntity";
 import { UploadImages } from "../../../config/uploadImages";
+import { GlobalData } from "../../../domain/models/global";
 
 
 
@@ -44,12 +45,15 @@ export class ProductService implements IProductService {
         }
     }
 
-    async getProducts(page: number, size: number): Promise<Product[]> {
+    async getProducts(page: number, size: number): Promise<GlobalData<Product[]>> {
 
         try {
             const skip = (page - 1) * size;
             const take = size;
-            return await this._productRepository.getProducts(skip, take);
+
+            const [products, totalItems] = await this._productRepository.getProducts(skip, take);
+
+            return { data: products, totalItems };
 
         } catch (error) {
             if (error instanceof CustomError) throw error;

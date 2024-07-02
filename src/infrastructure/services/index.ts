@@ -4,3 +4,7 @@ export * from './implementation/UserService';
 export * from './interface/IUserService';
 export * from './implementation/CategoryService';
 export * from './interface/ICategoryService';
+export * from './interface/ISalesService';
+export * from './implementation/SalesService';
+export * from './interface/ISalesItemService';
+export * from './implementation/SalesItemService';

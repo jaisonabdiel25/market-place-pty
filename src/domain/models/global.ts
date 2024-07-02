@@ -1,7 +1,8 @@
 
 export interface GlobalData<T> {
     data: T;
-    message: string;
+    message?: string;
+    totalItems: number;
 }
 
 
