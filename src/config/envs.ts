@@ -9,4 +9,5 @@ export const envs = {
     JWT_SECRET: get('JWT_SECRET').required().asString(),
     FIREBASE_AUTH_USER: get('FIREBASE_AUTH_USER').required().asString(),
     FIREBASE_AUTH_PASSWORD: get('FIREBASE_AUTH_PASSWORD').required().asString(),
+    WEBSERVICE_URL: get('WEBSERVICE_URL').required().asString(),
 }

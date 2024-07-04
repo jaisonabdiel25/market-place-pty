@@ -10,7 +10,7 @@ export class MailService implements IMailService {
     constructor(
     ) { }
 
-    async sendMail(sendMailDto: any): Promise<SentMessageInfo> {
+    async sendMail(sendMailDto: SendMailDto): Promise<SentMessageInfo> {
         try {
 
             const [error, registerUserDto] = SendMailDto.sendMail(sendMailDto);

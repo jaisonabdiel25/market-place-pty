@@ -12,6 +12,7 @@ export class UserEntity {
         public roles?: string[],
         public img?: string,
         public password?: string,
+        public description?: string,
     ) { }
 
 

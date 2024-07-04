@@ -10,7 +10,7 @@ export class SalesItemRepository extends ISalesItemRepository {
             where: {
                 saleId: id
             },
-            include: {product: true, sale: true}
+            include: { product: { include: { createBy: true } }, sale: true,  }
         });
     }
 }

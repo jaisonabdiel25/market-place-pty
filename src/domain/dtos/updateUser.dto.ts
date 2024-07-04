@@ -1,13 +1,15 @@
+
+
+
 import { ZodError } from "zod";
 import { CustomError } from "../../config/errors";
-import { createUserSchema } from "../schema/createUser.schema";
+import { updateUserSchema } from "../schema/createUser.schema";
 
 
-export class CreateUserDto {
+export class UpdateUserDto {
     private constructor(
         public name: string,
         public firstName: string,
-        public email: string,
         public password: string,
         public active: boolean,
         public phone?: string,
@@ -15,13 +17,13 @@ export class CreateUserDto {
         public description?: string,
     ) { }
 
-    static RegisterUser(object: { [key: string]: any }): [string[], CreateUserDto?] {
-        const { name, firstName, email, password, img, phone, confirmPassword, description } = object
+    static RegisterUser(object: { [key: string]: any }): [string[], UpdateUserDto?] {
+        const { name, firstName, password, img, phone, description } = object
         try {
-            createUserSchema.parse({ name, firstName, email, password, phone, confirmPassword, description });
+            updateUserSchema.parse({ name, firstName, password, phone, img, description });
             return [
                 [],
-                new CreateUserDto(name, firstName, email, password, img, phone, description)
+                new UpdateUserDto(name, firstName, password, img, phone, img, description)
             ];
         } catch (error) {
             if (error instanceof ZodError) {

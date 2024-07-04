@@ -29,8 +29,9 @@ export class ProductController {
         try {
             const page = parseInt(req.query.page as string) || 1;
             const size = parseInt(req.query.size as string) || 10;
+            const search = req.query.search as string || '';
 
-            const products = await this._productService.getProducts(page, size);
+            const products = await this._productService.getProducts(page, size, search);
             res.status(200).json(products);
 
         } catch (error) {
@@ -63,6 +64,24 @@ export class ProductController {
         try {
             await this._productService.updateProduct(req.params.id, req.body, req.headers);
             res.status(200).json({ message: 'Product updated' });
+
+        } catch (error) {
+            if (error instanceof PreconditionValidation) {
+                PreconditionValidation.handleErrors(error, res);
+            }
+            CustomError.handleErrors(error, res);
+        }
+    }
+
+    getProductsByCategory = async (req: Request, res: Response) => {
+
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const size = parseInt(req.query.size as string) || 10;
+            const id =req.params.id;
+
+            const products = await this._productService.getProductByCategory(id, page, size);
+            res.status(200).json(products);
 
         } catch (error) {
             if (error instanceof PreconditionValidation) {

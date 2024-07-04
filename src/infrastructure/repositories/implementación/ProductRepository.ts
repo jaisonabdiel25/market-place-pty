@@ -12,11 +12,61 @@ import { UpdateProductDto } from "../../../domain/dtos/updateProduct.dto";
 export class ProductRepository implements IProductRepository {
     constructor() { }
 
-    async getProducts(skip: number, take: number): Promise<[Product[], number]> {
+    async getProducts(skip: number, take: number, search: string): Promise<[Product[], number]> {
         try {
-            const total = await prisma.product.count({ where: { active: true } });
-            const result = await prisma.product.findMany({ skip, take, include: { images: true }, where: { active: true } });
-            return [result, total];
+
+            if (search) {
+                const total = await prisma.product.count({
+                    where: {
+                        active: true,
+                        OR: [
+                            {
+                                name: {
+                                    contains: search,
+                                    mode: 'insensitive', // Para búsqueda no sensible a mayúsculas
+                                },
+                            },
+                            {
+                                description: {
+                                    contains: search,
+                                    mode: 'insensitive', // Para búsqueda no sensible a mayúsculas
+                                },
+                            },
+                        ],
+                    },
+                });
+
+                const result = await prisma.product.findMany({
+                    skip,
+                    take,
+                    include: { images: true },
+                    where: {
+                        active: true,
+                        OR: [
+                            {
+                                name: {
+                                    contains: search,
+                                    mode: 'insensitive', // Para búsqueda no sensible a mayúsculas
+                                },
+                            },
+                            {
+                                description: {
+                                    contains: search,
+                                    mode: 'insensitive', // Para búsqueda no sensible a mayúsculas
+                                },
+                            },
+                        ],
+                    },
+                });
+                return [result, total];
+            } else {
+                const total = await prisma.product.count({ where: { active: true } });
+                const result = await prisma.product.findMany({ skip, take, include: { images: true }, where: { active: true } });
+                return [result, total];
+            }
+
+
+
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
@@ -58,8 +108,16 @@ export class ProductRepository implements IProductRepository {
 
     async getProductByListIds(ids: string[]): Promise<Product[]> {
         try {
-            console.log(ids)
             return await prisma.product.findMany({ where: { id: { in: ids } } });
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            throw CustomError.internal();
+        }
+    }
+
+    async getProductByCategory(id: string, skip: number, take: number): Promise<Product[]>{
+        try {
+            return await prisma.product.findMany({skip, take, where: { categoryId: id, active: true }, include: {images: true} });
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();

@@ -1,5 +1,5 @@
 import { IncomingHttpHeaders } from "http";
-import { IProductRepository, ISalesRepository } from "../../repositories";
+import { IProductRepository, ISalesItemRepository, ISalesRepository } from "../../repositories";
 import { ISalesService } from "../interface/ISalesService";
 import { CustomError } from "../../../config/errors";
 import { PreconditionValidation } from "../../../config/PreconditionValidation";
@@ -7,13 +7,17 @@ import { prisma } from "../../../client";
 import { PaymentSale, SaleCreate } from "../../../domain/models/sales";
 import { jwtAdapter } from "../../../config/jwt";
 import { GlobalData, TokenDecoded } from "../../../domain/models/global";
-import { Sale } from "@prisma/client";
+import { Sale, } from "@prisma/client";
+import { SendMailDto } from "../../../domain/dtos/sendMail.dto";
+import { IMailService } from "../interface/IMailService";
 
 
 export class SalesService implements ISalesService {
     constructor(
         private readonly _salesRepository: ISalesRepository,
         private readonly _productRepository: IProductRepository,
+        private readonly _emailService: IMailService,
+        private readonly _salesItemRepository: ISalesItemRepository
     ) { }
 
     async createSale(data: SaleCreate, headers: IncomingHttpHeaders): Promise<void> {
@@ -26,7 +30,7 @@ export class SalesService implements ISalesService {
 
             if (products.length !== data.productsId.length) throw CustomError.prevalidation('Algunos productos no existen');
 
-            await prisma.$transaction(async (tx) => {
+            const { updateProduct } = await prisma.$transaction(async (tx) => {
 
                 const updateProductPromises = products.map(product => {
 
@@ -34,7 +38,8 @@ export class SalesService implements ISalesService {
                         where: { id: product.id },
                         data: {
                             active: false,
-                        }
+                        },
+                        include: { createBy: true }
                     });
                 });
 
@@ -60,8 +65,16 @@ export class SalesService implements ISalesService {
                     }
                 });
 
+                const emailsDistincs = [...new Set(updateProduct.map(p => p.createBy.email))];
+
+                emailsDistincs.forEach(element => {
+                    this.sendEmailOrderCreated(element, updateProduct.filter(p => p.createBy.email === element).map(p => `${p.name} - consun valor de  $${p.price}`));
+                });
+
                 return { updateProduct, sale };
             });
+
+
 
         } catch (error) {
             if (error instanceof CustomError) throw error;
@@ -74,9 +87,9 @@ export class SalesService implements ISalesService {
         try {
             const decodedToken = await jwtAdapter.decodeToken<GlobalData<TokenDecoded>>(headers);
 
-           const [result, totalItems] =  await this._salesRepository.salesByUser(decodedToken!.data.id);
+            const [result, totalItems] = await this._salesRepository.salesByUser(decodedToken!.data.id);
 
-           return { data: result, totalItems };
+            return { data: result, totalItems };
 
         } catch (error) {
             throw CustomError.internal();
@@ -101,9 +114,83 @@ export class SalesService implements ISalesService {
         try {
 
             await this._salesRepository.updatePayment(request.orderId, request.transactionId);
+
+            const saleItems = await prisma.saleItem.findMany({
+                where: {
+                    saleId: request.orderId
+                },
+                include: { product: { include: { createBy: true } }, sale: true, }
+            });
+
+            const emailsDistincs = [...new Set(saleItems.map(p => p.product.createBy.email))];
+
+            emailsDistincs.forEach(element => {
+                this.sendEmailConfirmPayment(element, saleItems.filter(p => p.product.createBy.email === element).map(p => `${p.product.name} con un valor de $${p.price}`));
+            });
+
+
+
         } catch (error) {
             if (error instanceof CustomError) throw error;
             throw CustomError.internal();
         }
+    }
+
+    private sendEmailOrderCreated = async (email: string, products: string[]) => {
+
+        const token = await jwtAdapter.generateToken({ email });
+        if (!token) throw CustomError.internal('Error getting token');
+
+        const html = `
+          <h3>Se ha(n) agregado a una orden de compra tu(s) producto(s)</h3>
+
+          <p>los productos son:</p>
+          ${products.map(p => (
+            `<ul>
+                <li>${p}</li>
+            </ul>`
+        ))}
+          <p>Te estaremos contactando cuando se realice el pago de la orden.</p>
+        `;
+
+        const options: SendMailDto = {
+            to: email,
+            subject: 'Orden creada para tus productos',
+            html: html,
+        }
+
+        const isSent = await this._emailService.sendMail(options);
+        if (!isSent) throw CustomError.internal('Error sending email');
+
+        return true;
+    }
+
+    private sendEmailConfirmPayment = async (email: string, products: string[]) => {
+
+        const token = await jwtAdapter.generateToken({ email });
+        if (!token) throw CustomError.internal('Error getting token');
+
+        const html = `
+          <h3>Se ha realizado el pago de el/los productos</h3>
+
+          <p>los productos son:</p>
+          ${products.map(p => (
+            `<ul>
+                <li>${p}</li>
+            </ul>`
+        ))}
+          <p>Te estaremos contactando para realizar el desembolso del pago de tu(s) productos.</p>
+        `;
+
+        const options: SendMailDto = {
+            to: email,
+            subject: 'Pago realizado de tus productos',
+            html: html,
+        }
+
+        const isSent = await this._emailService.sendMail(options);
+        if (!isSent) throw CustomError.internal('Error sending email');
+
+        return true;
     }
 }

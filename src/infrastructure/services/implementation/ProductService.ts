@@ -45,13 +45,13 @@ export class ProductService implements IProductService {
         }
     }
 
-    async getProducts(page: number, size: number): Promise<GlobalData<Product[]>> {
+    async getProducts(page: number, size: number, search: string): Promise<GlobalData<Product[]>> {
 
         try {
             const skip = (page - 1) * size;
             const take = size;
 
-            const [products, totalItems] = await this._productRepository.getProducts(skip, take);
+            const [products, totalItems] = await this._productRepository.getProducts(skip, take, search);
 
             return { data: products, totalItems };
 
@@ -97,6 +97,19 @@ export class ProductService implements IProductService {
 
             await this._productRepository.updateProduct(id, updateProductsDto!);
 
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            if (error instanceof PreconditionValidation) throw error;
+            throw CustomError.internal();
+        }
+    }
+
+    async getProductByCategory(id: string, page: number, size: number): Promise<Product[]> {
+
+        try {
+            const skip = (page - 1) * size;
+            const take = size;
+            return await this._productRepository.getProductByCategory(id, skip, take)
         } catch (error) {
             if (error instanceof CustomError) throw error;
             if (error instanceof PreconditionValidation) throw error;

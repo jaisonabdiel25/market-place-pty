@@ -23,8 +23,9 @@ model User {
   img      String?
   createAt DateTime @default(now())
   phone    String?
+  description String?
   roles    UserRole[]
-  active   Boolean  @default(true)
+  active   Boolean  @default(false)
   products Product []
   sales    Sale[]
 }

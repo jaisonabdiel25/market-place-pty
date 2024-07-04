@@ -10,3 +10,13 @@ export const createUserSchema = z.object({
     phone: z.string().optional(),
     img: z.string().optional(),
 }).refine(data => data.password === data.confirmPassword, { message: 'Las contraseñas no coinciden', path: ['confirmPassword'] })
+
+
+export const updateUserSchema = z.object({
+    name: z.string().optional(),
+    firstName: z.string().optional(),
+    phone: z.string().optional(),
+    img: z.string().optional(),
+    description: z.string().optional(),
+    password: z.string().optional(),
+}).passthrough().partial()

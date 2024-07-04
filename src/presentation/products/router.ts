@@ -21,6 +21,7 @@ export class ProductRoutes {
         router.get('/:id', controller.getProduct);
         router.post('/', [TokenMiddelware.verifyToken, uploadMultiple], controller.createProduct);
         router.patch('/:id', TokenMiddelware.verifyToken, controller.updateProduct);
+        router.get('/category/:id', controller.getProductsByCategory);
 
         return router;
     }

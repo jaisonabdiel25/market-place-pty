@@ -4,7 +4,7 @@ export class UserMapperResponse {
 
     static userMapperResponse(object: { [key: string]: any }) {
 
-        const { id, name, email, active, phone, img, firstName, roles } = object;
+        const { id, name, email, active, phone, img, firstName, roles, description } = object;
         return new UserEntity(
             id,
             name,
@@ -14,6 +14,8 @@ export class UserMapperResponse {
             phone,
             roles,
             img,
+            undefined,
+            description
         )
     }
 }
