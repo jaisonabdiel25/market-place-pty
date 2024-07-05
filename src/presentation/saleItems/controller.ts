@@ -11,7 +11,6 @@ export class SalesItemController {
     getSalesItemsBySale = async (req: Request, res: Response) => {
         try {
 
-            console.log(req.params.id)
             const sales = await this.salesService.getSalesItemBySaleId(req.params.id);
 
             res.status(200).json(sales);

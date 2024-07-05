@@ -68,7 +68,7 @@ export class SalesService implements ISalesService {
                 const emailsDistincs = [...new Set(updateProduct.map(p => p.createBy.email))];
 
                 emailsDistincs.forEach(element => {
-                    this.sendEmailOrderCreated(element, updateProduct.filter(p => p.createBy.email === element).map(p => `${p.name} - consun valor de  $${p.price}`));
+                    this.sendEmailOrderCreated(element, updateProduct.filter(p => p.createBy.email === element).map(p => `${p.name} - con un valor de  $${p.price}`));
                 });
 
                 return { updateProduct, sale };
@@ -119,7 +119,7 @@ export class SalesService implements ISalesService {
                 where: {
                     saleId: request.orderId
                 },
-                include: { product: { include: { createBy: true } }, sale: true, }
+                include: { product: { include: { createBy: true } }, sale: {include: {user: true}}, }
             });
 
             const emailsDistincs = [...new Set(saleItems.map(p => p.product.createBy.email))];
@@ -128,7 +128,7 @@ export class SalesService implements ISalesService {
                 this.sendEmailConfirmPayment(element, saleItems.filter(p => p.product.createBy.email === element).map(p => `${p.product.name} con un valor de $${p.price}`));
             });
 
-
+            this.sendEmailPaymentSuccess(saleItems[0].sale.user.email, saleItems[0].sale.total);
 
         } catch (error) {
             if (error instanceof CustomError) throw error;
@@ -145,11 +145,11 @@ export class SalesService implements ISalesService {
           <h3>Se ha(n) agregado a una orden de compra tu(s) producto(s)</h3>
 
           <p>los productos son:</p>
+          <ul>
           ${products.map(p => (
-            `<ul>
-                <li>${p}</li>
-            </ul>`
+            `<li>${p}</li>`
         ))}
+        </ul>
           <p>Te estaremos contactando cuando se realice el pago de la orden.</p>
         `;
 
@@ -174,12 +174,35 @@ export class SalesService implements ISalesService {
           <h3>Se ha realizado el pago de el/los productos</h3>
 
           <p>los productos son:</p>
+          <ul>
           ${products.map(p => (
-            `<ul>
-                <li>${p}</li>
-            </ul>`
+            `<li>${p}</li>`
         ))}
+        </ul>
           <p>Te estaremos contactando para realizar el desembolso del pago de tu(s) productos.</p>
+        `;
+
+        const options: SendMailDto = {
+            to: email,
+            subject: 'Pago realizado de tus productos',
+            html: html,
+        }
+
+        const isSent = await this._emailService.sendMail(options);
+        if (!isSent) throw CustomError.internal('Error sending email');
+
+        return true;
+    }
+
+    private sendEmailPaymentSuccess = async (email: string, total: number) => {
+
+        const token = await jwtAdapter.generateToken({ email });
+        if (!token) throw CustomError.internal('Error getting token');
+
+        const html = `
+          <h3>Su compra en marketplace-pty ser ha realizado con exito</h3>
+
+          <p>Muchas gracias.</p>
         `;
 
         const options: SendMailDto = {

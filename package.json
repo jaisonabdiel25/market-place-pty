@@ -7,7 +7,8 @@
     "dev": "tsnd --respawn --clear src/index.ts",
     "build": "rimraf ./dist && tsc",
     "start": "npm run build && node dist/index.js",
-    "seed": "ts-node-dev ./src/domain/seed/seed-database.ts"
+    "seed": "ts-node-dev ./src/domain/seed/seed-database.ts",
+    "prisma:migrate:dev": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
